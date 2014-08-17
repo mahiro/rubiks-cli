@@ -1,12 +1,28 @@
-all: search
+CC = g++
+CFLAGS = -fast -Wall
+MKDIR = mkdir -p
 
-run: compile
-	./search < data/level-0/cross
+BINS = rubiks-search rubiks-apply rubiks-reverse rubiks-scramble
+SRCS = $(shell find . -name '*.cpp' -print | sed s/^.\\///)
+OBJS = $(patsubst %.cpp, obj/%.o, $(SRCS))
+DEPS = $(patsubst %.cpp, obj/%.d, $(SRCS))
 
-time: compile
-	time ./search < data/level-0/cross
+.PHONY: all clean
+all: $(BINS)
 
-compile: search
+clean:
+	$(RM) -r obj $(BINS)
 
-search: main.cpp
-	g++ -O3 -o search main.cpp
+rubiks-%: obj/%.o obj/rubiks.o $(DEPS)
+	$(CC) -o $@ $< obj/rubiks.o
+
+.SUFFIXES: .cpp .o .d
+obj/%.o: %.cpp
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+obj/%.d: %.cpp
+	@$(MKDIR) $(dir $@)
+	@$(CC) -MM -MG -MP -MT $(@:.d=.o) -MT $@ $< > $@
+
+-include $(DEPS)
