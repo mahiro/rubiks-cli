@@ -2,11 +2,9 @@ CC = g++
 CFLAGS = -fast -Wall
 MKDIR = mkdir -p
 
-BINS = bin/rubiks-search bin/rubiks-apply bin/rubiks-reverse bin/rubiks-scramble
-#SRCS = $(shell find src -name '*.cpp' -print | sed s/^.\\///)
 SRCS = $(shell find src -name '*.cpp' -print)
-#OBJS = $(patsubst src/%.cpp, obj/%.o, $(SRCS))
 DEPS = $(patsubst src/%.cpp, obj/%.d, $(SRCS))
+BINS = bin/rubiks-search bin/rubiks-apply bin/rubiks-reverse bin/rubiks-scramble bin/rubiks-enumerate
 
 TSRCS = $(shell find t -name '*.cpp' -print)
 TDEPS = $(patsubst t/%.cpp, obj/%.d, $(TSRCS))

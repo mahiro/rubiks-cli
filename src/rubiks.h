@@ -47,10 +47,21 @@ namespace rubiks {
         void inner_rotate_HT(const size_t *rotation_pattern);
         void inner_rotate_RT(const size_t *rotation_pattern);
       public:
-        Cube() : table() {}
+        Cube() {reset();}
+        Cube(const Cube &other) {
+            *this = other;
+        }
+        inline void reset() {
+            memcpy(table, DefaultTable, sizeof table);
+        }
         void rotate(Slice slice, Turn turn);
         void rotate(const Rotation &rotation);
-        void reset();
+        void scramble(int times);
+        void scramble(int times, Procedure &rotations);
+        inline Cube &operator=(const Cube &other) {
+            memcpy(table, other.table, sizeof table);
+            return *this;
+        }
         bool operator==(const Cube &other) const;
         friend istream &operator>>(istream &in, Cube &cube);
         friend ostream &operator<<(ostream &out, const Cube &cube);
@@ -69,6 +80,7 @@ namespace rubiks {
         bool operator==(const Rotation &other) const;
         friend class Cube;
         friend class Search;
+        friend class Enumerate;
         friend istream &operator>>(istream &in, Rotation &rotation);
         friend ostream &operator<<(ostream &out, const Rotation &rotation);
         friend istream &operator>>(istream &out, Procedure &rotations);
@@ -85,7 +97,20 @@ namespace rubiks {
         Search(Cube &_cube, const Cube &_goal) : cube(_cube), goal(_goal), out(cout) {}
         Search(Cube &_cube, const Cube &_goal, ostream &_out) : cube(_cube), goal(_goal), out(_out) {}
         bool search(int target_depth);
-        void handle_result();
+      protected:
+        void handle_result(const Procedure &stack) const;
+    };
+
+    class Enumerate {
+      private:
+        Procedure stack;
+        ostream &out;
+      public:
+        Enumerate() : out(cout) {}
+        Enumerate(ostream &_out) : out(_out) {}
+        void enumerate(int target_depth);
+      protected:
+        void handle_result(const Procedure &procedure) const;
     };
 
     inline bool should_skip(Slice prev_slice, Slice current_slice) {

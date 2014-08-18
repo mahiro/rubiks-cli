@@ -3,32 +3,24 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+    bool show_cube = true;
     bool show_procedure = false;
     bool show_solution = false;
 
-    rubiks::Cube cube;
-    cube.reset();
+    int times = 20;
 
-    srand(time(0));
-    rubiks::Procedure procedure;
-
-    while (procedure.size() < 20) {
-        rubiks::Slice slice = rand() % 6;
-
-        if (procedure.size() > 0) {
-            rubiks::Slice prev_slice = procedure.back().get_slice();
-
-            if (rubiks::should_skip(prev_slice, slice)) {
-                continue;
-            }
-        }
-
-        rubiks::Turn turn = rand() % 3 + 1;
-        cube.rotate(slice, turn);
-        procedure.push_back(rubiks::Rotation(slice, turn));
+    if (argc > 1) {
+        times = atoi(argv[1]);
     }
 
-    cout << cube;
+    rubiks::Procedure procedure;
+    rubiks::Cube cube;
+    cube.reset();
+    cube.scramble(times, procedure);
+
+    if (show_cube) {
+        cout << cube;
+    }
 
     if (show_procedure) {
         cout << procedure;

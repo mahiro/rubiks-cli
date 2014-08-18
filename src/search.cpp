@@ -3,6 +3,8 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+    bool show_progress = true;
+
     int min_depth = 1;
     int max_depth = 8;
 
@@ -23,7 +25,10 @@ int main(int argc, char *argv[]) {
 
     for (int d = min_depth; d <= max_depth; d++) {
         rubiks::Search search(cube, goal);
-        cerr << "# Depth: " << d << endl;
+
+        if (show_progress) {
+            cerr << "# Depth: " << d << endl;
+        }
 
         if (search.search(d)) {
             break;

@@ -152,8 +152,31 @@ namespace rubiks {
         rotate(rotation.slice, rotation.turn);
     }
 
-    void Cube::reset() {
-        memcpy(table, DefaultTable, sizeof table);
+    void Cube::scramble(int times) {
+        Procedure procedure;
+        scramble(times, procedure);
+    }
+
+    void Cube::scramble(int times, Procedure &procedure) {
+        int count = 0;
+        srand(time(0));
+
+        while (count < times) {
+            Slice slice = rand() % 6;
+
+            if (procedure.size() > 0) {
+                Slice prev_slice = procedure.back().get_slice();
+
+                if (should_skip(prev_slice, slice)) {
+                    continue;
+                }
+            }
+
+            Turn turn = rand() % 3 + 1;
+            rotate(slice, turn);
+            procedure.push_back(Rotation(slice, turn));
+            count++;
+        }
     }
 
     bool Cube::operator==(const Cube &other) const {
@@ -263,7 +286,7 @@ namespace rubiks {
         return in;
     }
 
-    istream &operator>>(istream &in, Procedure &rotations) {
+    istream &operator>>(istream &in, Procedure &procedure) {
         string line;
         getline(in, line);
 
@@ -282,7 +305,7 @@ namespace rubiks {
                 break;
             }
 
-            rotations.push_back(rotation);
+            procedure.push_back(rotation);
         }
 
         return in;
@@ -298,11 +321,11 @@ namespace rubiks {
         return out;
     }
 
-    ostream &operator<<(ostream &out, const Procedure &rotations) {
+    ostream &operator<<(ostream &out, const Procedure &procedure) {
         bool first = true;
 
-        for (Procedure::const_iterator it = rotations.begin();
-                it != rotations.end(); ++it) {
+        for (Procedure::const_iterator it = procedure.begin();
+                it != procedure.end(); ++it) {
             if (first) {
                 first = false;
             } else {
@@ -319,15 +342,13 @@ namespace rubiks {
     bool Search::search(int target_depth) {
         int depth = stack.size();
 
-        if (depth == target_depth) {
-            if (cube == goal) {
-                handle_result();
-                return true;
-            }
-        }
-
         if (depth >= target_depth) {
-            return false;
+            if (cube == goal) {
+                handle_result(stack);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         bool found = false;
@@ -335,10 +356,8 @@ namespace rubiks {
         char prev_slice = depth > 0 ? stack.back().slice : -1;
 
         for (int slice = 0; slice < num_slices; slice++) {
-            if (depth > 0) {
-                if (should_skip(prev_slice, slice)) {
-                    continue;
-                }
+            if (depth > 0 && should_skip(prev_slice, slice)) {
+                continue;
             }
 
             stack.push_back(Rotation(slice, QT));
@@ -363,8 +382,43 @@ namespace rubiks {
         return found;
     }
 
-    void Search::handle_result() {
-        out << stack;
+    void Search::handle_result(const Procedure &procedure) const {
+        out << procedure;
+    }
+
+    void Enumerate::enumerate(int target_depth) {
+        int depth = stack.size();
+
+        if (depth >= target_depth) {
+            handle_result(stack);
+            return;
+        }
+
+        int num_slices = 6 + 3; // slices + middles
+        char prev_slice = depth > 0 ? stack.back().slice : -1;
+
+        for (int slice = 0; slice < num_slices; slice++) {
+            if (depth > 0 && should_skip(prev_slice, slice)) {
+                continue;
+            }
+
+            stack.push_back(Rotation(slice, QT));
+            {
+                // QT
+                enumerate(target_depth);
+                // RT
+                stack.back().turn = RT;
+                enumerate(target_depth);
+                // HT
+                stack.back().turn = HT;
+                enumerate(target_depth);
+            }
+            stack.pop_back();
+        }
+    }
+
+    void Enumerate::handle_result(const Procedure &procedure) const {
+        out << procedure;
     }
 
     void reverse_procedure(const Procedure &source, Procedure &destination) {
