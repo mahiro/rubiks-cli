@@ -131,19 +131,48 @@ namespace rubiks {
         }
 
         const size_t (*rot)[8] = rotation_patterns[slice];
-        int num_rotate = slice < 6 ? 5 : 3;
+        int num_rotate = is_single_face(slice) ? 5 : 3;
 
-        if (turn == QT) {
-            for (char i = 0; i < num_rotate; i++) {
-                inner_rotate_QT(rot[i]);
+        if (is_single_slice(slice)) {
+            if (turn == QT) {
+                for (char i = 0; i < num_rotate; i++) {
+                    inner_rotate_QT(rot[i]);
+                }
+            } else if (turn == HT) {
+                for (char i = 0; i < num_rotate; i++) {
+                    inner_rotate_HT(rot[i]);
+                }
+            } else if (turn == RT) {
+                for (char i = 0; i < num_rotate; i++) {
+                    inner_rotate_RT(rot[i]);
+                }
             }
-        } else if (turn == HT) {
-            for (char i = 0; i < num_rotate; i++) {
-                inner_rotate_HT(rot[i]);
+        } else if (is_double_slice(slice)) {
+            switch (slice) {
+                case W_u: rotate(U, turn); rotate(E, reverse(turn)); break;
+                case W_f: rotate(F, turn); rotate(S, turn); break;
+                case W_r: rotate(R, turn); rotate(M, reverse(turn)); break;
+                case W_l: rotate(L, turn); rotate(M, turn); break;
+                case W_b: rotate(B, turn); rotate(S, reverse(turn)); break;
+                case W_d: rotate(D, turn); rotate(E, turn); break;
             }
-        } else if (turn == RT) {
-            for (char i = 0; i < num_rotate; i++) {
-                inner_rotate_RT(rot[i]);
+        } else if (is_triple_slice(slice)) {
+            switch (slice) {
+                case T_x:
+                    rotate(R, turn);
+                    rotate(M, reverse(turn));
+                    rotate(L, reverse(turn));
+                    break;
+                case T_y:
+                    rotate(U, turn);
+                    rotate(E, reverse(turn));
+                    rotate(D, reverse(turn));
+                    break;
+                case T_z:
+                    rotate(F, turn);
+                    rotate(S, turn);
+                    rotate(B, reverse(turn));
+                    break;
             }
         }
     }
@@ -244,14 +273,6 @@ namespace rubiks {
         return out;
     }
 
-    Rotation Rotation::reverse() const {
-        return Rotation(slice, (4 - turn) % 4);
-    }
-
-    bool Rotation::operator==(const Rotation &other) const {
-        return slice == other.slice && turn == other.turn;
-    }
-
     istream &operator>>(istream &in, Rotation &rotation) {
         string word;
         in >> word;
@@ -270,6 +291,15 @@ namespace rubiks {
             case 'M': rotation.slice = M; break;
             case 'S': rotation.slice = S; break;
             case 'E': rotation.slice = E; break;
+            case 'u': rotation.slice = W_u; break;
+            case 'f': rotation.slice = W_f; break;
+            case 'r': rotation.slice = W_r; break;
+            case 'l': rotation.slice = W_l; break;
+            case 'b': rotation.slice = W_b; break;
+            case 'd': rotation.slice = W_d; break;
+            case 'x': rotation.slice = T_x; break;
+            case 'y': rotation.slice = T_y; break;
+            case 'z': rotation.slice = T_z; break;
             default: rotation = Rotation(); // TODO: handle error?
         }
 
@@ -421,7 +451,7 @@ namespace rubiks {
         out << procedure;
     }
 
-    void reverse_procedure(const Procedure &source, Procedure &destination) {
+    void reverse(const Procedure &source, Procedure &destination) {
         for (Procedure::const_reverse_iterator it = source.rbegin();
                 it != source.rend(); ++it) {
             destination.push_back(it->reverse());

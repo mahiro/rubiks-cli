@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     if (show_solution) {
         rubiks::Procedure solution;
-        rubiks::reverse_procedure(procedure, solution);
+        rubiks::reverse(procedure, solution);
         cout << solution;
     }
 

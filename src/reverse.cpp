@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
         }
 
         rubiks::Procedure output;
-        rubiks::reverse_procedure(input, output);
+        rubiks::reverse(input, output);
 
         cout << output;
     }

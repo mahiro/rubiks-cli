@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 36;
 use FindBin;
 use IPC::Open2;
 
@@ -438,5 +438,140 @@ g h i  P Q R  Y Z !  p q r
        s t u
        v w x
        y z ?
+
+END
+
+test("u", <<END);
+       G D A
+       H E B
+       I F C
+
+J K L  S T U  j k l  a b c
+M N O  V W X  m n o  d e f
+g h i  P Q R  Y Z !  p q r
+
+       s t u
+       v w x
+       y z ?
+
+END
+
+test("f", <<END);
+       A B C
+       h e b
+       i f c
+
+a v s  P M J  G D U  j k l
+d w t  Q N K  H E X  m n o
+g x u  R O L  I F !  p q r
+
+       Y V S
+       Z W T
+       y z ?
+
+END
+
+test("r", <<END);
+       A K L
+       D N O
+       G Q R
+
+a b c  J t u  Y V S  I H l
+d e f  M w x  Z W T  F E o
+g h i  P z ?  ! X U  C B r
+
+       s q p
+       v n m
+       y k j
+
+END
+
+test("l", <<END);
+       r q C
+       o n F
+       l k I
+
+g d a  A B L  S T U  j z y
+h e b  D E O  V W X  m w v
+i f c  G H R  Y Z !  p t s
+
+       J K u
+       M N x
+       P Q ?
+
+END
+
+test("b", <<END);
+       U X !
+       T W Z
+       G H I
+
+C F c  J K L  S x ?  p m j
+B E f  M N O  V w z  q n k
+A D i  P Q R  Y v y  r o l
+
+       s t u
+       b e h
+       a d g
+
+END
+
+test("d", <<END);
+       A B C
+       D E F
+       G H I
+
+a b c  J K L  S T U  j k l
+m n o  d e f  M N O  V W X
+p q r  g h i  P Q R  Y Z !
+
+       y v s
+       z w t
+       ? x u
+
+END
+
+test("x", <<END);
+       J K L
+       M N O
+       P Q R
+
+c f i  s t u  Y V S  I H G
+b e h  v w x  Z W T  F E D
+a d g  y z ?  ! X U  C B A
+
+       r q p
+       o n m
+       l k j
+
+END
+
+test("y", <<END);
+       G D A
+       H E B
+       I F C
+
+J K L  S T U  j k l  a b c
+M N O  V W X  m n o  d e f
+P Q R  Y Z !  p q r  g h i
+
+       u x ?
+       t w z
+       s v y
+
+END
+
+test("z", <<END);
+       g d a
+       h e b
+       i f c
+
+y v s  P M J  G D A  l o r
+z w t  Q N K  H E B  k n q
+? x u  R O L  I F C  j m p
+
+       Y V S
+       Z W T
+       ! X U
 
 END

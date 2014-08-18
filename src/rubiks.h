@@ -12,6 +12,7 @@ namespace rubiks {
     class Search;
     typedef size_t Slice;
     typedef size_t Turn;
+    typedef size_t Position;
     typedef vector<Rotation> Procedure;
 
     const Slice U = 0; // Up
@@ -20,16 +21,39 @@ namespace rubiks {
     const Slice L = 3; // Left
     const Slice B = 4; // Back
     const Slice D = 5; // Down
-    const Slice M = 6; // Middle  (Up-to-Front)
-    const Slice S = 7; // Side    (Up-to-Right)
-    const Slice E = 8; // Equator (Front-to-Right)
-    const char Slices[] = {'U', 'F', 'R', 'L', 'B', 'D', 'M', 'S', 'E'};
+    const Slice M = 6; // Middle   (Up-to-Front)
+    const Slice S = 7; // Standing (Up-to-Right)
+    const Slice E = 8; // Equator  (Front-to-Right)
+    const Slice W_u =  9; // Up 2 layers
+    const Slice W_f = 10; // Front 2 layers
+    const Slice W_r = 11; // Right 2 layers
+    const Slice W_l = 12; // Left 2 layers
+    const Slice W_b = 13; // Back 2 layers
+    const Slice W_d = 14; // Down 2 layers
+    const Slice T_x = 15; // x-axis rotation
+    const Slice T_y = 16; // y-axis rotation
+    const Slice T_z = 17; // z-axis rotation
+
+    const char Slices[] = {
+        'U', 'F', 'R', 'L', 'B', 'D',
+        'M', 'S', 'E',
+        'u', 'f', 'r', 'l', 'b', 'd',
+        'x', 'y', 'z',
+    };
+
+    inline bool is_single_face (Slice slice) {return  0 <= slice && slice <  6;}
+    inline bool is_middle_slice(Slice slice) {return  6 <= slice && slice <  9;}
+    inline bool is_single_slice(Slice slice) {return  0 <= slice && slice <  9;}
+    inline bool is_double_slice(Slice slice) {return  9 <= slice && slice < 15;}
+    inline bool is_triple_slice(Slice slice) {return 15 <= slice && slice < 18;}
 
     const Turn NT = 0; // No turn
     const Turn QT = 1; // Quarter turn
     const Turn HT = 2; // Half turn
     const Turn RT = 3; // Reverse quarter turn
     const char Turns[] = {'?', ' ', '2', '\''};
+
+    inline Turn reverse(Turn turn) {return (4 - turn) & 0x03;}
 
     const char DefaultTable[6][9] = {
         /*U*/ {'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W'},
@@ -50,6 +74,9 @@ namespace rubiks {
         Cube() {reset();}
         Cube(const Cube &other) {
             *this = other;
+        }
+        inline char get(Slice slice, Position position) {
+            return table[slice][position];
         }
         inline void reset() {
             memcpy(table, DefaultTable, sizeof table);
@@ -76,8 +103,12 @@ namespace rubiks {
         Rotation(Slice _slice, Turn _turn) : slice(_slice), turn(_turn) {}
         inline Slice get_slice() const {return slice;}
         inline Turn get_turn() const {return turn;}
-        Rotation reverse() const;
-        bool operator==(const Rotation &other) const;
+        inline Rotation reverse() const {
+            return Rotation(slice, rubiks::reverse(turn));
+        }
+        inline bool operator==(const Rotation &other) const {
+            return slice == other.slice && turn == other.turn;
+        }
         friend class Cube;
         friend class Search;
         friend class Enumerate;
@@ -133,7 +164,7 @@ namespace rubiks {
         return false;
     }
 
-    void reverse_procedure(const Procedure &source, Procedure &destination);
+    void reverse(const Procedure &source, Procedure &destination);
 }
 
 #endif
