@@ -12,11 +12,7 @@ int main(int argc, char *argv[]) {
         }
 
         rubiks::Procedure output;
-
-        for (rubiks::Procedure::reverse_iterator it = input.rbegin();
-                it != input.rend(); ++it) {
-            output.push_back(it->reverse());
-        }
+        rubiks::reverse_procedure(input, output);
 
         cout << output;
     }

@@ -191,7 +191,7 @@ namespace rubiks {
         for (int r = 0; r < 3; r++) {
             for (int i = 0; i < 3; i++) out << "  ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[U][3 * r + i] << " ";
+            for (int i = 0; i < 3; i++) out << cube.table[U][3 * r + i] << (i == 2 ? "" : " ");
             out << endl;
         }
 
@@ -204,7 +204,7 @@ namespace rubiks {
             out << " ";
             for (int i = 0; i < 3; i++) out << cube.table[R][3 * r + i] << " ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[B][3 * r + i] << " ";
+            for (int i = 0; i < 3; i++) out << cube.table[B][3 * r + i] << (i == 2 ? "" : " ");
             out << endl;
         }
 
@@ -213,7 +213,7 @@ namespace rubiks {
         for (int r = 0; r < 3; r++) {
             for (int i = 0; i < 3; i++) out << "  ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[D][3 * r + i] << " ";
+            for (int i = 0; i < 3; i++) out << cube.table[D][3 * r + i] << (i == 2 ? "" : " ");
             out << endl;
         }
 
@@ -222,7 +222,7 @@ namespace rubiks {
     }
 
     Rotation Rotation::reverse() const {
-        return Rotation(slice, (turn + HT) % 4);
+        return Rotation(slice, (4 - turn) % 4);
     }
 
     bool Rotation::operator==(const Rotation &other) const {
@@ -316,26 +316,6 @@ namespace rubiks {
         return out;
     }
 
-    inline bool Search::should_skip(Slice prev_slice, Slice current_slice) const {
-        if (prev_slice == current_slice) {
-            return true;
-        } else if (prev_slice == D && current_slice == U) {
-            return true;
-        } else if (prev_slice == B && current_slice == F) {
-            return true;
-        } else if (prev_slice == L && current_slice == R) {
-            return true;
-        } else if (prev_slice == M && (current_slice == R || current_slice == L)) {
-            return true;
-        } else if (prev_slice == S && (current_slice == F || current_slice == B)) {
-            return true;
-        } else if (prev_slice == E && (current_slice == U || current_slice == D)) {
-            return true;
-        }
-
-        return false;
-    }
-
     bool Search::search(int target_depth) {
         int depth = stack.size();
 
@@ -385,5 +365,12 @@ namespace rubiks {
 
     void Search::handle_result() {
         out << stack;
+    }
+
+    void reverse_procedure(const Procedure &source, Procedure &destination) {
+        for (Procedure::const_reverse_iterator it = source.rbegin();
+                it != source.rend(); ++it) {
+            destination.push_back(it->reverse());
+        }
     }
 }

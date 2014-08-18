@@ -63,6 +63,8 @@ namespace rubiks {
       public:
         Rotation() : slice(U), turn(NT) {}
         Rotation(Slice _slice, Turn _turn) : slice(_slice), turn(_turn) {}
+        inline Slice get_slice() const {return slice;}
+        inline Turn get_turn() const {return turn;}
         Rotation reverse() const;
         bool operator==(const Rotation &other) const;
         friend class Cube;
@@ -79,13 +81,34 @@ namespace rubiks {
         const Cube &goal;
         Procedure stack;
         ostream &out;
-        bool should_skip(Slice prev_slice, Slice current_slice) const;
       public:
         Search(Cube &_cube, const Cube &_goal) : cube(_cube), goal(_goal), out(cout) {}
         Search(Cube &_cube, const Cube &_goal, ostream &_out) : cube(_cube), goal(_goal), out(_out) {}
         bool search(int target_depth);
         void handle_result();
     };
+
+    inline bool should_skip(Slice prev_slice, Slice current_slice) {
+        if (prev_slice == current_slice) {
+            return true;
+        } else if (prev_slice == D && current_slice == U) {
+            return true;
+        } else if (prev_slice == B && current_slice == F) {
+            return true;
+        } else if (prev_slice == L && current_slice == R) {
+            return true;
+        } else if (prev_slice == M && (current_slice == R || current_slice == L)) {
+            return true;
+        } else if (prev_slice == S && (current_slice == F || current_slice == B)) {
+            return true;
+        } else if (prev_slice == E && (current_slice == U || current_slice == D)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    void reverse_procedure(const Procedure &source, Procedure &destination);
 }
 
 #endif
