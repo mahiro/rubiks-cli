@@ -9,8 +9,8 @@ int main(int argc, char *argv[]) {
         target_depth = atoi(argv[1]);
     }
 
-    rubiks::Enumerate enumerate;
-    enumerate.enumerate(target_depth);
+    rubiks::Enumerate enumerate(target_depth);
+    enumerate.search();
 
     return 0;
 }

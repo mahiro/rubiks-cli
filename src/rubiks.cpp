@@ -131,19 +131,19 @@ namespace rubiks {
         }
 
         const size_t (*rot)[8] = rotation_patterns[slice];
-        int num_rotate = is_single_face(slice) ? 5 : 3;
+        size_t num_rotate = is_single_face(slice) ? 5 : 3;
 
         if (is_single_slice(slice)) {
             if (turn == QT) {
-                for (char i = 0; i < num_rotate; i++) {
+                for (size_t i = 0; i < num_rotate; i++) {
                     inner_rotate_QT(rot[i]);
                 }
             } else if (turn == HT) {
-                for (char i = 0; i < num_rotate; i++) {
+                for (size_t i = 0; i < num_rotate; i++) {
                     inner_rotate_HT(rot[i]);
                 }
             } else if (turn == RT) {
-                for (char i = 0; i < num_rotate; i++) {
+                for (size_t i = 0; i < num_rotate; i++) {
                     inner_rotate_RT(rot[i]);
                 }
             }
@@ -181,13 +181,13 @@ namespace rubiks {
         rotate(rotation.slice, rotation.turn);
     }
 
-    void Cube::scramble(int times) {
+    void Cube::scramble(size_t times) {
         Procedure procedure;
         scramble(times, procedure);
     }
 
-    void Cube::scramble(int times, Procedure &procedure) {
-        int count = 0;
+    void Cube::scramble(size_t times, Procedure &procedure) {
+        size_t count = 0;
         srand(time(0));
 
         while (count < times) {
@@ -209,8 +209,8 @@ namespace rubiks {
     }
 
     bool Cube::operator==(const Cube &other) const {
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 9; j++) {
+        for (size_t i = 0; i < 6; i++) {
+            for (size_t j = 0; j < 9; j++) {
                 if (table[i][j] != other.table[i][j]) {
                     return false;
                 }
@@ -221,51 +221,51 @@ namespace rubiks {
     }
 
     istream &operator>>(istream &in, Cube &cube) {
-        for (int r = 0; r < 3; r++) {
-            for (int i = 0; i < 3; i++) in >> cube.table[U][3 * r + i];
+        for (size_t r = 0; r < 3; r++) {
+            for (size_t i = 0; i < 3; i++) in >> cube.table[U][3 * r + i];
         }
 
-        for (int r = 0; r < 3; r++) {
-            for (int i = 0; i < 3; i++) in >> cube.table[L][3 * r + i];
-            for (int i = 0; i < 3; i++) in >> cube.table[F][3 * r + i];
-            for (int i = 0; i < 3; i++) in >> cube.table[R][3 * r + i];
-            for (int i = 0; i < 3; i++) in >> cube.table[B][3 * r + i];
+        for (size_t r = 0; r < 3; r++) {
+            for (size_t i = 0; i < 3; i++) in >> cube.table[L][3 * r + i];
+            for (size_t i = 0; i < 3; i++) in >> cube.table[F][3 * r + i];
+            for (size_t i = 0; i < 3; i++) in >> cube.table[R][3 * r + i];
+            for (size_t i = 0; i < 3; i++) in >> cube.table[B][3 * r + i];
         }
 
-        for (int r = 0; r < 3; r++) {
-            for (int i = 0; i < 3; i++) in >> cube.table[D][3 * r + i];
+        for (size_t r = 0; r < 3; r++) {
+            for (size_t i = 0; i < 3; i++) in >> cube.table[D][3 * r + i];
         }
 
         return in;
     }
 
     ostream &operator<<(ostream &out, const Cube &cube) {
-        for (int r = 0; r < 3; r++) {
-            for (int i = 0; i < 3; i++) out << "  ";
+        for (size_t r = 0; r < 3; r++) {
+            for (size_t i = 0; i < 3; i++) out << "  ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[U][3 * r + i] << (i == 2 ? "" : " ");
+            for (size_t i = 0; i < 3; i++) out << cube.table[U][3 * r + i] << (i == 2 ? "" : " ");
             out << endl;
         }
 
         out << endl;
 
-        for (int r = 0; r < 3; r++) {
-            for (int i = 0; i < 3; i++) out << cube.table[L][3 * r + i] << " ";
+        for (size_t r = 0; r < 3; r++) {
+            for (size_t i = 0; i < 3; i++) out << cube.table[L][3 * r + i] << " ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[F][3 * r + i] << " ";
+            for (size_t i = 0; i < 3; i++) out << cube.table[F][3 * r + i] << " ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[R][3 * r + i] << " ";
+            for (size_t i = 0; i < 3; i++) out << cube.table[R][3 * r + i] << " ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[B][3 * r + i] << (i == 2 ? "" : " ");
+            for (size_t i = 0; i < 3; i++) out << cube.table[B][3 * r + i] << (i == 2 ? "" : " ");
             out << endl;
         }
 
         out << endl;
 
-        for (int r = 0; r < 3; r++) {
-            for (int i = 0; i < 3; i++) out << "  ";
+        for (size_t r = 0; r < 3; r++) {
+            for (size_t i = 0; i < 3; i++) out << "  ";
             out << " ";
-            for (int i = 0; i < 3; i++) out << cube.table[D][3 * r + i] << (i == 2 ? "" : " ");
+            for (size_t i = 0; i < 3; i++) out << cube.table[D][3 * r + i] << (i == 2 ? "" : " ");
             out << endl;
         }
 
@@ -486,39 +486,20 @@ namespace rubiks {
         out << procedure;
     }
 
-    void Enumerate::enumerate(int target_depth) {
-        int depth = stack.size();
+    Cube enumerate_cube;
 
-        if (depth >= target_depth) {
-            handle_result(stack);
-            return;
-        }
+    Enumerate::Enumerate(size_t _depth) :
+        Search(enumerate_cube, enumerate_cube, _depth) {};
 
-        int num_slices = 6 + 3; // slices + middles
-        char prev_slice = depth > 0 ? stack.back().slice : -1;
+    Enumerate::Enumerate(size_t _depth, ostream &_out) :
+        Search(enumerate_cube, enumerate_cube, _depth, _out) {};
 
-        for (int slice = 0; slice < num_slices; slice++) {
-            if (depth > 0 && should_skip(prev_slice, slice)) {
-                continue;
-            }
-
-            stack.push_back(Rotation(slice, QT));
-            {
-                // QT
-                enumerate(target_depth);
-                // RT
-                stack.back().turn = RT;
-                enumerate(target_depth);
-                // HT
-                stack.back().turn = HT;
-                enumerate(target_depth);
-            }
-            stack.pop_back();
-        }
+    inline bool Enumerate::match() const {
+        return true;
     }
 
-    void Enumerate::handle_result(const Procedure &procedure) const {
-        out << procedure;
+    inline void Enumerate::result(const Procedure &procedure) const {
+        cout << procedure;
     }
 
     void reverse(const Procedure &source, Procedure &destination) {

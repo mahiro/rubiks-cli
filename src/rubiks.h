@@ -95,8 +95,8 @@ namespace rubiks {
         }
         void rotate(Slice slice, Turn turn);
         void rotate(const Rotation &rotation);
-        void scramble(int times);
-        void scramble(int times, Procedure &rotations);
+        void scramble(size_t times);
+        void scramble(size_t times, Procedure &rotations);
         inline Cube &operator=(const Cube &other) {
             memcpy(table, other.table, sizeof table);
             return *this;
@@ -134,7 +134,6 @@ namespace rubiks {
       private:
         Cube &cube;
         const Cube &goal;
-        Procedure stack;
         size_t target_depth;
         ostream &out;
         Option option;
@@ -151,17 +150,13 @@ namespace rubiks {
         void result(const Procedure &stack) const;
     };
 
-    class Enumerate {
-      private:
-        Procedure stack;
-        ostream &out;
-        Option option;
+    class Enumerate : public Search {
       public:
-        Enumerate() : out(cout) {}
-        Enumerate(ostream &_out) : out(_out) {}
-        void enumerate(int target_depth);
+        Enumerate(size_t _depth);
+        Enumerate(size_t _depth, ostream &_out);
       protected:
-        void handle_result(const Procedure &procedure) const;
+        bool match() const;
+        void result(const Procedure &stack) const;
     };
 
     inline bool should_skip(Slice prev_slice, Slice current_slice) {
