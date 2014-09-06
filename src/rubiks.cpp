@@ -369,12 +369,81 @@ namespace rubiks {
         return out;
     }
 
-    bool Search::search(int target_depth) {
-        int depth = stack.size();
+    bool Search::inner_search_turns(Procedure &stack, Slice slice) {
+        bool found = false;
+
+        if (option & OPT_QUARTER_TURN) {
+            // QT
+            cube.rotate(slice, QT);
+            if (inner_search(stack)) {found = true;}
+
+            if (option & OPT_REVERSE_TURN) {
+                // RT
+                cube.rotate(slice, HT); // QT + HT => RT
+                stack.back().turn = RT;
+                if (inner_search(stack)) {found = true;}
+
+                if (option & OPT_HALF_TURN) {
+                    // HT
+                    cube.rotate(slice, RT); // RT + RT => HT
+                    stack.back().turn = HT;
+                    if (inner_search(stack)) {found = true;}
+                    // Restore
+                    cube.rotate(slice, HT);
+                } else {
+                    // Restore
+                    cube.rotate(slice, QT);
+                }
+            } else {
+                if (option & OPT_HALF_TURN) {
+                    // HT
+                    cube.rotate(slice, QT); // QT + QT => HT
+                    stack.back().turn = HT;
+                    if (inner_search(stack)) {found = true;}
+                    // Restore
+                    cube.rotate(slice, HT);
+                } else {
+                    // Restore
+                    cube.rotate(slice, RT);
+                }
+            }
+        } else {
+            if (option & OPT_REVERSE_TURN) {
+                // RT
+                cube.rotate(slice, RT);
+                stack.back().turn = RT;
+                if (inner_search(stack)) {found = true;}
+
+                if (option & OPT_HALF_TURN) {
+                    // HT
+                    cube.rotate(slice, RT); // RT + RT => HT
+                    stack.back().turn = HT;
+                    if (inner_search(stack)) {found = true;}
+                    // Restore
+                    cube.rotate(slice, HT);
+                } else {
+                    // Restore
+                    cube.rotate(slice, QT);
+                }
+            } else if (option & OPT_HALF_TURN) {
+                // HT
+                cube.rotate(slice, HT);
+                stack.back().turn = HT;
+                if (inner_search(stack)) {found = true;}
+                // Restore
+                cube.rotate(slice, HT);
+            }
+        }
+
+        return found;
+    }
+
+    bool Search::inner_search(Procedure &stack) {
+        size_t depth = stack.size();
 
         if (depth >= target_depth) {
-            if (cube == goal) {
-                handle_result(stack);
+            if (match()) {
+                result(stack);
                 return true;
             } else {
                 return false;
@@ -382,37 +451,38 @@ namespace rubiks {
         }
 
         bool found = false;
-        int num_slices = 6 + 3; // slices + middles
         char prev_slice = depth > 0 ? stack.back().slice : -1;
 
-        for (int slice = 0; slice < num_slices; slice++) {
+        Slice slice_begin = (option & OPT_SINGLE_FACE) ? 0 : 6;
+        Slice slice_end = (option & OPT_MIDDLE_SLICE) ? 9 : 6;
+
+        for (Slice slice = slice_begin; slice < slice_end; slice++) {
             if (depth > 0 && should_skip(prev_slice, slice)) {
                 continue;
             }
 
             stack.push_back(Rotation(slice, QT));
-            {
-                // QT
-                cube.rotate(slice, QT);
-                if (search(target_depth)) {found = true;}
-                // RT
-                cube.rotate(slice, HT); // QT + HT => RT
-                stack.back().turn = RT;
-                if (search(target_depth)) {found = true;}
-                // HT
-                cube.rotate(slice, RT); // RT + RT => HT
-                stack.back().turn = HT;
-                if (search(target_depth)) {found = true;}
-                // Restore
-                cube.rotate(slice, HT);
+
+            if (inner_search_turns(stack, slice)) {
+                found = true;
             }
+
             stack.pop_back();
         }
 
         return found;
     }
 
-    void Search::handle_result(const Procedure &procedure) const {
+    bool Search::search() {
+        Procedure stack;
+        return inner_search(stack);
+    }
+
+    inline bool Search::match() const {
+        return cube == goal;
+    }
+
+    inline void Search::result(const Procedure &procedure) const {
         out << procedure;
     }
 

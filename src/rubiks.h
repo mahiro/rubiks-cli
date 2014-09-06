@@ -14,6 +14,7 @@ namespace rubiks {
     typedef size_t Turn;
     typedef size_t Position;
     typedef vector<Rotation> Procedure;
+    typedef unsigned int Option;
 
     const Slice U = 0; // Up
     const Slice F = 1; // Front
@@ -63,6 +64,17 @@ namespace rubiks {
         /*B*/ {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B'},
         /*D*/ {'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'},
     };
+
+    const Option OPT_QUARTER_TURN  = 0x01;
+    const Option OPT_REVERSE_TURN  = 0x02;
+    const Option OPT_HALF_TURN     = 0x04;
+
+    const Option OPT_SINGLE_FACE   = 0x10;
+    const Option OPT_MIDDLE_SLICE  = 0x20;
+    const Option OPT_DOUBLE_SLICES = 0x40;
+    const Option OPT_CUBE_ROTATION = 0x80;
+
+    const Option DefaultOption = OPT_HALF_TURN | OPT_REVERSE_TURN | OPT_MIDDLE_SLICE;
 
     class Cube {
       private:
@@ -123,19 +135,27 @@ namespace rubiks {
         Cube &cube;
         const Cube &goal;
         Procedure stack;
+        size_t target_depth;
         ostream &out;
+        Option option;
+        bool inner_search(Procedure &stack);
+        bool inner_search_turns(Procedure &stack, Slice slice);
       public:
-        Search(Cube &_cube, const Cube &_goal) : cube(_cube), goal(_goal), out(cout) {}
-        Search(Cube &_cube, const Cube &_goal, ostream &_out) : cube(_cube), goal(_goal), out(_out) {}
-        bool search(int target_depth);
+        Search(Cube &_cube, const Cube &_goal, size_t _depth) :
+            cube(_cube), goal(_goal), target_depth(_depth), out(cout) {}
+        Search(Cube &_cube, const Cube &_goal, size_t _depth, ostream &_out) :
+            cube(_cube), goal(_goal), target_depth(_depth), out(_out) {}
+        bool search();
       protected:
-        void handle_result(const Procedure &stack) const;
+        bool match() const;
+        void result(const Procedure &stack) const;
     };
 
     class Enumerate {
       private:
         Procedure stack;
         ostream &out;
+        Option option;
       public:
         Enumerate() : out(cout) {}
         Enumerate(ostream &_out) : out(_out) {}

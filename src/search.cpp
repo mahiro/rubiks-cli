@@ -24,13 +24,13 @@ int main(int argc, char *argv[]) {
     cin >> goal;
 
     for (int d = min_depth; d <= max_depth; d++) {
-        rubiks::Search search(cube, goal);
+        rubiks::Search search(cube, goal, d);
 
         if (show_progress) {
             cerr << "# Depth: " << d << endl;
         }
 
-        if (search.search(d)) {
+        if (search.search()) {
             break;
         }
     }
