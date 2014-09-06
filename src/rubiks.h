@@ -74,7 +74,9 @@ namespace rubiks {
     const Option OPT_DOUBLE_SLICES = 0x40;
     const Option OPT_CUBE_ROTATION = 0x80;
 
-    const Option DefaultOption = OPT_HALF_TURN | OPT_REVERSE_TURN | OPT_MIDDLE_SLICE;
+    const Option DefaultOption =
+        OPT_QUARTER_TURN | OPT_HALF_TURN | OPT_REVERSE_TURN |
+        OPT_SINGLE_FACE | OPT_MIDDLE_SLICE;
 
     class Cube {
       private:
@@ -141,10 +143,19 @@ namespace rubiks {
         bool inner_search_turns(Procedure &stack, Slice slice);
       public:
         Search(Cube &_cube, const Cube &_goal, size_t _depth) :
-            cube(_cube), goal(_goal), target_depth(_depth), out(cout) {}
+            cube(_cube), goal(_goal), target_depth(_depth), out(cout), option(DefaultOption) {}
         Search(Cube &_cube, const Cube &_goal, size_t _depth, ostream &_out) :
-            cube(_cube), goal(_goal), target_depth(_depth), out(_out) {}
+            cube(_cube), goal(_goal), target_depth(_depth), out(_out), option(DefaultOption) {}
         bool search();
+        void add_option(Option opt) {
+            option |= opt;
+        }
+        void remove_option(Option opt) {
+            option &= ~opt;
+        }
+        bool has_option(Option opt) {
+            return option & opt;
+        }
       protected:
         bool match() const;
         void result(const Procedure &stack) const;
