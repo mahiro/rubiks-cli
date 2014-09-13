@@ -4,7 +4,7 @@ MKDIR = mkdir -p
 
 SRCS = $(shell find src -name '*.cpp' -print)
 DEPS = $(patsubst src/%.cpp, obj/%.d, $(SRCS))
-BINS = bin/rubiks-search bin/rubiks-apply bin/rubiks-reverse bin/rubiks-scramble bin/rubiks-enumerate
+BINS = bin/rubiks-search bin/rubiks-apply bin/rubiks-reverse bin/rubiks-mirror bin/rubiks-scramble bin/rubiks-enumerate
 
 TSRCS = $(shell find t -name '*.cpp' -print)
 TDEPS = $(patsubst t/%.cpp, obj/%.d, $(TSRCS))

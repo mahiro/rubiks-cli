@@ -35,6 +35,27 @@ namespace rubiks {
     const Slice T_y = 16; // y-axis rotation
     const Slice T_z = 17; // z-axis rotation
 
+    const Slice mirror_slice[] = {
+        /*U*/ U,
+        /*F*/ R,
+        /*R*/ F,
+        /*L*/ B,
+        /*B*/ L,
+        /*D*/ D,
+        /*M*/ S,
+        /*S*/ M,
+        /*E*/ E,
+        /*W_u*/ W_u,
+        /*W_f*/ W_r,
+        /*W_r*/ W_f,
+        /*W_l*/ W_b,
+        /*W_b*/ W_l,
+        /*W_d*/ W_d,
+        /*T_x*/ T_z,
+        /*T_y*/ T_y,
+        /*T_z*/ T_x,
+    };
+
     const char Slices[] = {
         'U', 'F', 'R', 'L', 'B', 'D',
         'M', 'S', 'E',
@@ -120,6 +141,10 @@ namespace rubiks {
         inline Rotation reverse() const {
             return Rotation(slice, rubiks::reverse(turn));
         }
+        inline Rotation mirror() const {
+            return Rotation(mirror_slice[slice],
+                    (slice == M || slice == S ? turn : rubiks::reverse(turn)));
+        }
         inline bool operator==(const Rotation &other) const {
             return slice == other.slice && turn == other.turn;
         }
@@ -191,6 +216,7 @@ namespace rubiks {
     }
 
     void reverse(const Procedure &source, Procedure &destination);
+    void mirror(const Procedure &source, Procedure &destination);
 }
 
 #endif

@@ -508,4 +508,11 @@ namespace rubiks {
             destination.push_back(it->reverse());
         }
     }
+
+    void mirror(const Procedure &source, Procedure &destination) {
+        for (Procedure::const_iterator it = source.begin();
+                it != source.end(); ++it) {
+            destination.push_back(it->mirror());
+        }
+    }
 }
