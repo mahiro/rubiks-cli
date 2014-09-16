@@ -13,7 +13,7 @@ TBINS = $(patsubst t/%.cpp, t/%.t, $(TSRCS))
 .PHONY: all clean
 all: $(BINS)
 
-test: $(TBINS)
+test: $(BINS) $(TBINS)
 	prove
 
 clean:
