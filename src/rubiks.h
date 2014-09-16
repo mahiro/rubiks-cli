@@ -159,13 +159,14 @@ namespace rubiks {
 
     class Search {
       private:
+        bool inner_search(Procedure &stack);
+        bool inner_search_turns(Procedure &stack, Slice slice);
+      protected:
         Cube &cube;
         const Cube &goal;
         size_t target_depth;
         ostream &out;
         Option option;
-        bool inner_search(Procedure &stack);
-        bool inner_search_turns(Procedure &stack, Slice slice);
       public:
         Search(Cube &_cube, const Cube &_goal, size_t _depth) :
             cube(_cube), goal(_goal), target_depth(_depth), out(cout), option(DefaultOption) {}

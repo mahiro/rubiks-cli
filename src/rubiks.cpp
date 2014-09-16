@@ -499,7 +499,7 @@ namespace rubiks {
     }
 
     inline void Enumerate::result(const Procedure &procedure) const {
-        cout << procedure;
+        out << procedure;
     }
 
     void reverse(const Procedure &source, Procedure &destination) {
