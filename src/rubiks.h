@@ -63,9 +63,9 @@ namespace rubiks {
         'x', 'y', 'z',
     };
 
-    inline bool is_single_face (Slice slice) {return  0 <= slice && slice <  6;}
+    inline bool is_single_face (Slice slice) {return  /* 0 <= slice && */ slice <  6;}
     inline bool is_middle_slice(Slice slice) {return  6 <= slice && slice <  9;}
-    inline bool is_single_slice(Slice slice) {return  0 <= slice && slice <  9;}
+    inline bool is_single_slice(Slice slice) {return  /* 0 <= slice && */ slice <  9;}
     inline bool is_double_slice(Slice slice) {return  9 <= slice && slice < 15;}
     inline bool is_triple_slice(Slice slice) {return 15 <= slice && slice < 18;}
 
