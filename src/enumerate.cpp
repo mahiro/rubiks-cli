@@ -9,6 +9,13 @@ int main(int argc, char *argv[]) {
     getopt.set_default_max_depth(1);
     getopt.parse(argc, argv);
 
+    if (getopt.has_io_option(rubiks::IO_PRINT_HELP)) {
+        cerr << "Usage:" << endl;
+        cerr << "  " << getopt.get_program_name() << " [-n|-N NUM] [-prlsmdt] > OUTPUT_MOVE" << endl;
+        cerr << "  " << getopt.get_program_name() << " -h" << endl;
+        exit(-1);
+    }
+
     size_t min_depth = getopt.get_min_depth();
     size_t max_depth = getopt.get_max_depth();
 

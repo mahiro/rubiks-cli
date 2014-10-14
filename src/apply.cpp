@@ -7,6 +7,14 @@ int main(int argc, char *argv[]) {
     rubiks::Getopt getopt;
     getopt.parse(argc, argv);
 
+    if (getopt.has_io_option(rubiks::IO_PRINT_HELP)) {
+        cerr << "Usage:" << endl;
+        cerr << "  " << getopt.get_program_name() << " < INPUT_CUBE + INPUT_MOVE > OUTPUT_MOVE" << endl;
+        cerr << "  " << getopt.get_program_name() << " -I < INPUT_MOVE > OUTPUT_MOVE" << endl;
+        cerr << "  " << getopt.get_program_name() << " -h" << endl;
+        exit(-1);
+    }
+
     bool read_cube = getopt.has_io_option(rubiks::IO_READ_INITIAL_CUBE);
 
     rubiks::Cube cube;
