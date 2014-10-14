@@ -1,22 +1,29 @@
 #include <iostream>
 #include "rubiks.h"
+#include "rubiks-getopt.h"
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    bool show_cube = true;
-    bool show_procedure = false;
-    bool show_solution = false;
+    rubiks::Getopt getopt;
+    getopt.set_default_min_depth(20);
+    getopt.set_default_max_depth(20);
+    getopt.parse(argc, argv);
 
-    int times = 20;
+    bool read_cube = getopt.has_io_option(rubiks::IO_READ_INITIAL_CUBE);
+    size_t depth = getopt.get_min_depth();
 
-    if (argc > 1) {
-        times = atoi(argv[1]);
+    bool show_cube      = getopt.has_io_option(rubiks::IO_PRINT_CUBE);
+    bool show_procedure = getopt.has_io_option(rubiks::IO_PRINT_PROCEDURE);
+    bool show_solution  = getopt.has_io_option(rubiks::IO_PRINT_REVERSE_PROCEDURE);
+
+    rubiks::Cube cube;
+
+    if (read_cube) {
+        cin >> cube;
     }
 
     rubiks::Procedure procedure;
-    rubiks::Cube cube;
-    cube.reset();
-    cube.scramble(times, procedure);
+    cube.scramble(depth, procedure);
 
     if (show_cube) {
         cout << cube;

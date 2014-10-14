@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -fast -Wall
+CFLAGS = -Wall
 MKDIR = mkdir -p
 
 SRCS = $(shell find src -name '*.cpp' -print)
@@ -19,13 +19,13 @@ test: $(BINS) $(TBINS)
 clean:
 	$(RM) -r obj bin $(TBINS)
 
-bin/rubiks-%: obj/%.o obj/rubiks.o $(DEPS)
+bin/rubiks-%: obj/%.o obj/rubiks.o obj/rubiks-getopt.o $(DEPS)
 	@$(MKDIR) $(dir $@)
-	$(CC) -o $@ $< obj/rubiks.o
+	$(CC) -fast -o $@ $< obj/rubiks.o obj/rubiks-getopt.o
 
 t/%.t: obj/%.o obj/rubiks.o $(DEPS)
 	@$(MKDIR) $(dir $@)
-	$(CC) -o $@ $< obj/rubiks.o
+	$(CC) -fast -o $@ $< obj/rubiks.o
 
 .SUFFIXES: .cpp .o .d
 obj/%.o: src/%.cpp

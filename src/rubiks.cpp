@@ -96,7 +96,7 @@ namespace rubiks {
         },
     };
 
-    inline void Cube::inner_rotate_QT(const size_t *r) {
+    inline void Cube::apply_primary_quarter_turn(const size_t *r) {
         char tmp = table[r[0]][r[1]];
         table[r[0]][r[1]] = table[r[6]][r[7]];
         table[r[6]][r[7]] = table[r[4]][r[5]];
@@ -104,7 +104,7 @@ namespace rubiks {
         table[r[2]][r[3]] = tmp;
     }
 
-    inline void Cube::inner_rotate_HT(const size_t *r) {
+    inline void Cube::apply_half_turn(const size_t *r) {
         char tmp = table[r[0]][r[1]];
         table[r[0]][r[1]] = table[r[4]][r[5]];
         table[r[4]][r[5]] = tmp;
@@ -113,7 +113,7 @@ namespace rubiks {
         table[r[6]][r[7]] = tmp;
     }
 
-    inline void Cube::inner_rotate_RT(const size_t *r) {
+    inline void Cube::apply_reverse_quarter_turn(const size_t *r) {
         char tmp = table[r[0]][r[1]];
         table[r[0]][r[1]] = table[r[2]][r[3]];
         table[r[2]][r[3]] = table[r[4]][r[5]];
@@ -126,53 +126,55 @@ namespace rubiks {
             turn %= 4;
         }
 
-        if (turn == NT) {
+        if (turn == NullTurn) {
             return;
         }
 
-        const size_t (*rot)[8] = rotation_patterns[slice];
         size_t num_rotate = is_single_face(slice) ? 5 : 3;
 
         if (is_single_slice(slice)) {
-            if (turn == QT) {
+            if (turn == PrimaryQuarterTurn) {
                 for (size_t i = 0; i < num_rotate; i++) {
-                    inner_rotate_QT(rot[i]);
+                    apply_primary_quarter_turn(rotation_patterns[slice][i]);
                 }
-            } else if (turn == HT) {
+            } else if (turn == HalfTurn) {
                 for (size_t i = 0; i < num_rotate; i++) {
-                    inner_rotate_HT(rot[i]);
+                    apply_half_turn(rotation_patterns[slice][i]);
                 }
-            } else if (turn == RT) {
+            } else if (turn == ReverseQuarterTurn) {
                 for (size_t i = 0; i < num_rotate; i++) {
-                    inner_rotate_RT(rot[i]);
+                    apply_reverse_quarter_turn(rotation_patterns[slice][i]);
                 }
             }
         } else if (is_double_slice(slice)) {
             switch (slice) {
-                case W_u: rotate(U, turn); rotate(E, reverse(turn)); break;
-                case W_f: rotate(F, turn); rotate(S, turn); break;
-                case W_r: rotate(R, turn); rotate(M, reverse(turn)); break;
-                case W_l: rotate(L, turn); rotate(M, turn); break;
-                case W_b: rotate(B, turn); rotate(S, reverse(turn)); break;
-                case W_d: rotate(D, turn); rotate(E, turn); break;
+                case W_U: rotate(U, turn); rotate(E, reverse(turn)); break;
+                case W_F: rotate(F, turn); rotate(S, turn); break;
+                case W_R: rotate(R, turn); rotate(M, reverse(turn)); break;
+                case W_L: rotate(L, turn); rotate(M, turn); break;
+                case W_B: rotate(B, turn); rotate(S, reverse(turn)); break;
+                case W_D: rotate(D, turn); rotate(E, turn); break;
+                default: cerr << "Invalid slice value: " << slice << endl;
             }
         } else if (is_triple_slice(slice)) {
             switch (slice) {
-                case T_x:
+                case T_X:
                     rotate(R, turn);
                     rotate(M, reverse(turn));
                     rotate(L, reverse(turn));
                     break;
-                case T_y:
+                case T_Y:
                     rotate(U, turn);
                     rotate(E, reverse(turn));
                     rotate(D, reverse(turn));
                     break;
-                case T_z:
+                case T_Z:
                     rotate(F, turn);
                     rotate(S, turn);
                     rotate(B, reverse(turn));
                     break;
+                default:
+                    cerr << "Invalid slice value: " << slice << endl;
             }
         }
     }
@@ -188,10 +190,10 @@ namespace rubiks {
 
     void Cube::scramble(size_t times, Procedure &procedure) {
         size_t count = 0;
-        srand(time(0));
+        srand((unsigned int)time(0));
 
         while (count < times) {
-            Slice slice = rand() % 6;
+            Slice slice = (unsigned int)rand() % 6;
 
             if (procedure.size() > 0) {
                 Slice prev_slice = procedure.back().get_slice();
@@ -201,7 +203,7 @@ namespace rubiks {
                 }
             }
 
-            Turn turn = rand() % 3 + 1;
+            Turn turn = (unsigned int)rand() % 3 + 1;
             rotate(slice, turn);
             procedure.push_back(Rotation(slice, turn));
             count++;
@@ -291,26 +293,26 @@ namespace rubiks {
             case 'M': rotation.slice = M; break;
             case 'S': rotation.slice = S; break;
             case 'E': rotation.slice = E; break;
-            case 'u': rotation.slice = W_u; break;
-            case 'f': rotation.slice = W_f; break;
-            case 'r': rotation.slice = W_r; break;
-            case 'l': rotation.slice = W_l; break;
-            case 'b': rotation.slice = W_b; break;
-            case 'd': rotation.slice = W_d; break;
-            case 'x': rotation.slice = T_x; break;
-            case 'y': rotation.slice = T_y; break;
-            case 'z': rotation.slice = T_z; break;
+            case 'u': rotation.slice = W_U; break;
+            case 'f': rotation.slice = W_F; break;
+            case 'r': rotation.slice = W_R; break;
+            case 'l': rotation.slice = W_L; break;
+            case 'b': rotation.slice = W_B; break;
+            case 'd': rotation.slice = W_D; break;
+            case 'x': rotation.slice = T_X; break;
+            case 'y': rotation.slice = T_Y; break;
+            case 'z': rotation.slice = T_Z; break;
             default: rotation = Rotation(); // TODO: handle error?
         }
 
         if (word.length() >= 2) {
             switch (word[1]) {
-                case '\'': rotation.turn = RT; break;
-                case '2': rotation.turn = HT; break;
-                default: rotation.turn = NT; // TODO: handle error?
+                case '\'': rotation.turn = ReverseQuarterTurn; break;
+                case '2': rotation.turn = HalfTurn; break;
+                default: rotation.turn = NullTurn; // TODO: handle error?
             }
         } else {
-            rotation.turn = QT;
+            rotation.turn = PrimaryQuarterTurn;
         }
 
         return in;
@@ -342,7 +344,7 @@ namespace rubiks {
     }
 
     ostream &operator<<(ostream &out, const Rotation &rotation) {
-        if (rotation.turn == NT) {
+        if (rotation.turn == NullTurn) {
             out << "  ";
         } else {
             out << Slices[rotation.slice] << Turns[rotation.turn];
@@ -374,64 +376,64 @@ namespace rubiks {
 
         if (option & OPT_QUARTER_TURN) {
             // QT
-            cube.rotate(slice, QT);
+            cube.rotate(slice, PrimaryQuarterTurn);
             if (inner_search(stack)) {found = true;}
 
             if (option & OPT_REVERSE_TURN) {
                 // RT
-                cube.rotate(slice, HT); // QT + HT => RT
-                stack.back().turn = RT;
+                cube.rotate(slice, HalfTurn); // QT + HT => RT
+                stack.back().turn = ReverseQuarterTurn;
                 if (inner_search(stack)) {found = true;}
 
                 if (option & OPT_HALF_TURN) {
                     // HT
-                    cube.rotate(slice, RT); // RT + RT => HT
-                    stack.back().turn = HT;
+                    cube.rotate(slice, ReverseQuarterTurn); // RT + RT => HT
+                    stack.back().turn = HalfTurn;
                     if (inner_search(stack)) {found = true;}
                     // Restore
-                    cube.rotate(slice, HT);
+                    cube.rotate(slice, HalfTurn);
                 } else {
                     // Restore
-                    cube.rotate(slice, QT);
+                    cube.rotate(slice, PrimaryQuarterTurn);
                 }
             } else {
                 if (option & OPT_HALF_TURN) {
                     // HT
-                    cube.rotate(slice, QT); // QT + QT => HT
-                    stack.back().turn = HT;
+                    cube.rotate(slice, PrimaryQuarterTurn); // QT + QT => HT
+                    stack.back().turn = HalfTurn;
                     if (inner_search(stack)) {found = true;}
                     // Restore
-                    cube.rotate(slice, HT);
+                    cube.rotate(slice, HalfTurn);
                 } else {
                     // Restore
-                    cube.rotate(slice, RT);
+                    cube.rotate(slice, ReverseQuarterTurn);
                 }
             }
         } else {
             if (option & OPT_REVERSE_TURN) {
                 // RT
-                cube.rotate(slice, RT);
-                stack.back().turn = RT;
+                cube.rotate(slice, ReverseQuarterTurn);
+                stack.back().turn = ReverseQuarterTurn;
                 if (inner_search(stack)) {found = true;}
 
                 if (option & OPT_HALF_TURN) {
                     // HT
-                    cube.rotate(slice, RT); // RT + RT => HT
-                    stack.back().turn = HT;
+                    cube.rotate(slice, ReverseQuarterTurn); // RT + RT => HT
+                    stack.back().turn = HalfTurn;
                     if (inner_search(stack)) {found = true;}
                     // Restore
-                    cube.rotate(slice, HT);
+                    cube.rotate(slice, HalfTurn);
                 } else {
                     // Restore
-                    cube.rotate(slice, QT);
+                    cube.rotate(slice, PrimaryQuarterTurn);
                 }
             } else if (option & OPT_HALF_TURN) {
                 // HT
-                cube.rotate(slice, HT);
-                stack.back().turn = HT;
+                cube.rotate(slice, HalfTurn);
+                stack.back().turn = HalfTurn;
                 if (inner_search(stack)) {found = true;}
                 // Restore
-                cube.rotate(slice, HT);
+                cube.rotate(slice, HalfTurn);
             }
         }
 
@@ -451,17 +453,32 @@ namespace rubiks {
         }
 
         bool found = false;
-        char prev_slice = depth > 0 ? stack.back().slice : -1;
+        Slice prev_slice = depth > 0 ? stack.back().slice : 0;
 
-        Slice slice_begin = (option & OPT_SINGLE_FACE) ? 0 : 6;
-        Slice slice_end = (option & OPT_MIDDLE_SLICE) ? 9 : 6;
+        for (Slice slice = 0; slice < 18; slice++) {
+            if (is_single_face(slice)) {
+                if (!(option & OPT_SINGLE_FACE)) {
+                    continue;
+                }
+            } else if (is_middle_slice(slice)) {
+                if (!(option & OPT_MIDDLE_SLICE)) {
+                    continue;
+                }
+            } else if (is_double_slice(slice)) {
+                if (!(option & OPT_DOUBLE_SLICE)) {
+                    continue;
+                }
+            } else if (is_triple_slice(slice)) {
+                if (!(option & OPT_TRIPLE_SLICE)) {
+                    continue;
+                }
+            }
 
-        for (Slice slice = slice_begin; slice < slice_end; slice++) {
             if (depth > 0 && should_skip(prev_slice, slice)) {
                 continue;
             }
 
-            stack.push_back(Rotation(slice, QT));
+            stack.push_back(Rotation(slice, PrimaryQuarterTurn));
 
             if (inner_search_turns(stack, slice)) {
                 found = true;

@@ -1,30 +1,37 @@
 #include <iostream>
+#include <stddef.h>
 #include "rubiks.h"
+#include "rubiks-getopt.h"
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    bool show_progress = true;
+    rubiks::Getopt getopt;
+    getopt.set_default_min_depth(1);
+    getopt.set_default_max_depth(8);
+    getopt.parse(argc, argv);
 
-    int min_depth = 1;
-    int max_depth = 8;
+    bool read_initial_cube = getopt.has_io_option(rubiks::IO_READ_INITIAL_CUBE);
+    bool read_target_cube = getopt.has_io_option(rubiks::IO_READ_TARGET_CUBE);
 
-    if (argc > 1) {
-        min_depth = atoi(argv[1]);
-        max_depth = min_depth;
-    }
-
-    if (argc > 2) {
-        max_depth = atoi(argv[2]);
-    }
+    size_t min_depth = getopt.get_min_depth();
+    size_t max_depth = getopt.get_max_depth();
 
     rubiks::Cube cube;
     rubiks::Cube goal;
 
-    cin >> cube;
-    cin >> goal;
+    if (read_initial_cube) {
+        cin >> cube;
+    }
 
-    for (int d = min_depth; d <= max_depth; d++) {
+    if (read_target_cube) {
+        cin >> goal;
+    }
+
+    bool show_progress = !getopt.has_io_option(rubiks::IO_QUIET_PROGRESS);
+
+    for (size_t d = min_depth; d <= max_depth; d++) {
         rubiks::Search search(cube, goal, d);
+        search.set_option(getopt.get_option());
 
         if (show_progress) {
             cerr << "# Depth: " << d << endl;
