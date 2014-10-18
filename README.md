@@ -1,5 +1,11 @@
 # Rubik's Cube CLI
 
+This utility is a set of commands to process text data that represent Rubik's cubes and moves via CLI.
+
+## Contents
+
+* [Getting Started](#getting-started)
+
 Command References:
 
 * [rubiks-search](#rubiks-search)
@@ -13,6 +19,22 @@ Appendix:
 
 * [Cube Notation](#cube-notation)
 * [Move Notation](#move-notation)
+
+## Getting Started
+
+### Taking a glance
+
+    $ make
+    $ ./bin/rubiks-search -h
+
+### Installing commands
+
+    $ make
+    $ [sudo] make install
+    $ which rubiks-search
+    /usr/local/bin/rubiks-search
+
+Note: The `Makefile` is specifically for `Linux` (or `OS X`). It may not work on `Windows`.
 
 ## rubiks-search
 
