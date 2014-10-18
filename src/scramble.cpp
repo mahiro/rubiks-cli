@@ -1,6 +1,7 @@
 #include <iostream>
 #include "rubiks.h"
 #include "rubiks-getopt.h"
+
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -23,9 +24,9 @@ int main(int argc, char *argv[]) {
     bool read_cube = getopt.has_io_option(rubiks::IO_READ_INITIAL_CUBE);
     size_t depth = getopt.get_min_depth();
 
-    bool show_cube      = getopt.has_io_option(rubiks::IO_PRINT_CUBE);
+    bool show_cube = getopt.has_io_option(rubiks::IO_PRINT_CUBE);
     bool show_procedure = getopt.has_io_option(rubiks::IO_PRINT_PROCEDURE);
-    bool show_solution  = getopt.has_io_option(rubiks::IO_PRINT_REVERSE_PROCEDURE);
+    bool show_solution = getopt.has_io_option(rubiks::IO_PRINT_REVERSE_PROCEDURE);
 
     rubiks::Cube cube;
 

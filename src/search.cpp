@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include "rubiks.h"
 #include "rubiks-getopt.h"
+
 using namespace std;
 
 int main(int argc, char *argv[]) {

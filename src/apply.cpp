@@ -1,6 +1,7 @@
 #include <iostream>
 #include "rubiks.h"
 #include "rubiks-getopt.h"
+
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -35,8 +36,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (input.size() > 0) {
-            for (rubiks::Procedure::iterator it = input.begin();
-                    it != input.end(); ++it) {
+            for (rubiks::Procedure::iterator it = input.begin(); it != input.end(); ++it) {
                 cube.rotate(*it);
             }
 
