@@ -7,7 +7,10 @@ int main(int argc, char *argv[]) {
     rubiks::Getopt getopt;
     getopt.parse(argc, argv);
 
-    if (getopt.has_io_option(rubiks::IO_PRINT_HELP)) {
+    if (getopt.get_errors() > 0) {
+        cerr << "Try -h for help" << endl;
+        exit(getopt.get_errors());
+    } else if (getopt.has_io_option(rubiks::IO_PRINT_HELP)) {
         cerr << "Usage:" << endl;
         cerr << "  " << getopt.get_program_name() << " < INPUT_CUBE + INPUT_MOVE > OUTPUT_MOVE" << endl;
         cerr << "  " << getopt.get_program_name() << " -I < INPUT_MOVE > OUTPUT_MOVE" << endl;

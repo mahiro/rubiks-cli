@@ -10,7 +10,10 @@ int main(int argc, char *argv[]) {
     getopt.set_default_max_depth(8);
     getopt.parse(argc, argv);
 
-    if (getopt.has_io_option(rubiks::IO_PRINT_HELP)) {
+    if (getopt.get_errors() > 0) {
+        cerr << "Try -h for help" << endl;
+        exit(getopt.get_errors());
+    } else if (getopt.has_io_option(rubiks::IO_PRINT_HELP)) {
         cerr << "Usage:" << endl;
         cerr << "  " << getopt.get_program_name() << " [-n|-N NUM] [-prlsmdt] < INITIAL_CUBE + TARGET_CUBE > OUTPUT_MOVE" << endl;
         cerr << "  " << getopt.get_program_name() << " -h" << endl;

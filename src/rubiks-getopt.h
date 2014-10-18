@@ -23,7 +23,8 @@ namespace rubiks {
         Getopt() :
             default_min_depth(DEPTH_UNSET), default_max_depth(DEPTH_UNSET),
             min_depth(DEPTH_UNSET), max_depth(DEPTH_UNSET),
-            turn_option(0), slice_option(0), io_option(0) {}
+            turn_option(0), slice_option(0), io_option(0),
+            errors(0) {}
         void parse(int argc, char *argv[]);
         string get_program_path() const {return program_path;}
         string get_program_name() const {return program_name;}
