@@ -38,7 +38,8 @@ int main(int argc, char *argv[]) {
 
     for (size_t d = min_depth; d <= max_depth; d++) {
         rubiks::Search search(cube, goal, d);
-        search.set_option(getopt.get_option());
+        search.set_turn_option(getopt.get_turn_option());
+        search.set_slice_option(getopt.get_slice_option());
 
         if (show_progress) {
             cerr << "# Depth: " << d << endl;

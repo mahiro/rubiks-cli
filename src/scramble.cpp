@@ -30,20 +30,22 @@ int main(int argc, char *argv[]) {
         cin >> cube;
     }
 
-    rubiks::Procedure procedure;
-    cube.scramble(depth, procedure);
+    rubiks::Scramble scramble(cube);
+    scramble.set_turn_option(getopt.get_turn_option());
+    scramble.set_slice_option(getopt.get_slice_option());
+    scramble.scramble(depth);
 
     if (show_cube) {
         cout << cube;
     }
 
     if (show_procedure) {
-        cout << procedure;
+        cout << scramble.get_procedure();
     }
 
     if (show_solution) {
         rubiks::Procedure solution;
-        rubiks::reverse(procedure, solution);
+        rubiks::reverse(scramble.get_procedure(), solution);
         cout << solution;
     }
 

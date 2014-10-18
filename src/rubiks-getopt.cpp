@@ -15,11 +15,11 @@ namespace rubiks {
         while ((opt = getopt(argc, argv, "n:N:pPrRlLsSmMdDtTiIjJoOuUvVqQhH")) != -1) {
             switch (opt) {
                 case 'n':
-                    min_depth = (size_t) atoi(optarg);
+                    min_depth = atoi(optarg);
                     if (max_depth == DEPTH_UNSET || min_depth > max_depth) max_depth = min_depth;
                     break;
                 case 'N':
-                    max_depth = (size_t) atoi(optarg);
+                    max_depth = atoi(optarg);
                     if (min_depth != DEPTH_UNSET && min_depth > max_depth) min_depth = max_depth;
                     break;
 
@@ -69,7 +69,4 @@ namespace rubiks {
             }
         }
     }
-
-
-
 }

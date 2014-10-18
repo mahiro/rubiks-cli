@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include <cstring>
+#include <vector>
 #include "rubiks.h"
 
 namespace rubiks {
@@ -183,33 +183,6 @@ namespace rubiks {
         rotate(rotation.slice, rotation.turn);
     }
 
-    void Cube::scramble(size_t times) {
-        Procedure procedure;
-        scramble(times, procedure);
-    }
-
-    void Cube::scramble(size_t times, Procedure &procedure) {
-        size_t count = 0;
-        srand((unsigned int)time(0));
-
-        while (count < times) {
-            Slice slice = (unsigned int)rand() % 6;
-
-            if (procedure.size() > 0) {
-                Slice prev_slice = procedure.back().get_slice();
-
-                if (should_skip(prev_slice, slice)) {
-                    continue;
-                }
-            }
-
-            Turn turn = (unsigned int)rand() % 3 + 1;
-            rotate(slice, turn);
-            procedure.push_back(Rotation(slice, turn));
-            count++;
-        }
-    }
-
     bool Cube::operator==(const Cube &other) const {
         for (size_t i = 0; i < 6; i++) {
             for (size_t j = 0; j < 9; j++) {
@@ -374,18 +347,18 @@ namespace rubiks {
     bool Search::inner_search_turns(Procedure &stack, Slice slice) {
         bool found = false;
 
-        if (option & OPT_QUARTER_TURN) {
+        if (turn_option & OPT_QUARTER_TURN) {
             // QT
             cube.rotate(slice, PrimaryQuarterTurn);
             if (inner_search(stack)) {found = true;}
 
-            if (option & OPT_REVERSE_TURN) {
+            if (turn_option & OPT_REVERSE_TURN) {
                 // RT
                 cube.rotate(slice, HalfTurn); // QT + HT => RT
                 stack.back().turn = ReverseQuarterTurn;
                 if (inner_search(stack)) {found = true;}
 
-                if (option & OPT_HALF_TURN) {
+                if (turn_option & OPT_HALF_TURN) {
                     // HT
                     cube.rotate(slice, ReverseQuarterTurn); // RT + RT => HT
                     stack.back().turn = HalfTurn;
@@ -397,7 +370,7 @@ namespace rubiks {
                     cube.rotate(slice, PrimaryQuarterTurn);
                 }
             } else {
-                if (option & OPT_HALF_TURN) {
+                if (turn_option & OPT_HALF_TURN) {
                     // HT
                     cube.rotate(slice, PrimaryQuarterTurn); // QT + QT => HT
                     stack.back().turn = HalfTurn;
@@ -410,13 +383,13 @@ namespace rubiks {
                 }
             }
         } else {
-            if (option & OPT_REVERSE_TURN) {
+            if (turn_option & OPT_REVERSE_TURN) {
                 // RT
                 cube.rotate(slice, ReverseQuarterTurn);
                 stack.back().turn = ReverseQuarterTurn;
                 if (inner_search(stack)) {found = true;}
 
-                if (option & OPT_HALF_TURN) {
+                if (turn_option & OPT_HALF_TURN) {
                     // HT
                     cube.rotate(slice, ReverseQuarterTurn); // RT + RT => HT
                     stack.back().turn = HalfTurn;
@@ -427,7 +400,7 @@ namespace rubiks {
                     // Restore
                     cube.rotate(slice, PrimaryQuarterTurn);
                 }
-            } else if (option & OPT_HALF_TURN) {
+            } else if (turn_option & OPT_HALF_TURN) {
                 // HT
                 cube.rotate(slice, HalfTurn);
                 stack.back().turn = HalfTurn;
@@ -457,19 +430,19 @@ namespace rubiks {
 
         for (Slice slice = 0; slice < 18; slice++) {
             if (is_single_face(slice)) {
-                if (!(option & OPT_SINGLE_FACE)) {
+                if (!(slice_option & OPT_SINGLE_FACE)) {
                     continue;
                 }
             } else if (is_middle_slice(slice)) {
-                if (!(option & OPT_MIDDLE_SLICE)) {
+                if (!(slice_option & OPT_MIDDLE_SLICE)) {
                     continue;
                 }
             } else if (is_double_slice(slice)) {
-                if (!(option & OPT_DOUBLE_SLICE)) {
+                if (!(slice_option & OPT_DOUBLE_SLICE)) {
                     continue;
                 }
             } else if (is_triple_slice(slice)) {
-                if (!(option & OPT_TRIPLE_SLICE)) {
+                if (!(slice_option & OPT_TRIPLE_SLICE)) {
                     continue;
                 }
             }
@@ -517,6 +490,40 @@ namespace rubiks {
 
     inline void Enumerate::result(const Procedure &procedure) const {
         out << procedure;
+    }
+
+    void Scramble::scramble(size_t depth) {
+        srand((unsigned int)time(0));
+        vector<Turn> turns;
+        vector<Slice> slices;
+
+        if (turn_option & OPT_QUARTER_TURN) turns.push_back(PrimaryQuarterTurn);
+        if (turn_option & OPT_HALF_TURN   ) turns.push_back(HalfTurn);
+        if (turn_option & OPT_REVERSE_TURN) turns.push_back(ReverseQuarterTurn);
+
+        if (slice_option & OPT_SINGLE_FACE ) for (Slice s =  0; s <  6; s++) slices.push_back(s);
+        if (slice_option & OPT_MIDDLE_SLICE) for (Slice s =  6; s <  9; s++) slices.push_back(s);
+        if (slice_option & OPT_DOUBLE_SLICE) for (Slice s =  9; s < 12; s++) slices.push_back(s);
+        if (slice_option & OPT_TRIPLE_SLICE) for (Slice s = 12; s < 15; s++) slices.push_back(s);
+
+        size_t count = 0;
+
+        while (count < depth) {
+            Slice slice = slices[(unsigned int)rand() % slices.size()];
+
+            if (procedure.size() > 0) {
+                Slice prev_slice = procedure.back().get_slice();
+
+                if (should_skip(prev_slice, slice)) {
+                    continue;
+                }
+            }
+
+            Turn turn = turns[(unsigned int)rand() % turns.size()];
+            cube.rotate(slice, turn);
+            procedure.push_back(Rotation(slice, turn));
+            count++;
+        }
     }
 
     void reverse(const Procedure &source, Procedure &destination) {

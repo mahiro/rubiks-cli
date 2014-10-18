@@ -21,7 +21,8 @@ int main(int argc, char *argv[]) {
 
     for (size_t d = min_depth; d <= max_depth; d++) {
         rubiks::Enumerate enumerate(d);
-        enumerate.set_option(getopt.get_option());
+        enumerate.set_turn_option(getopt.get_turn_option());
+        enumerate.set_slice_option(getopt.get_slice_option());
         enumerate.search();
     }
 

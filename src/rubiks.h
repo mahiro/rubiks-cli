@@ -14,7 +14,8 @@ namespace rubiks {
     typedef size_t Turn;
     typedef size_t Position;
     typedef vector<Rotation> Procedure;
-    typedef unsigned int Option;
+    typedef unsigned int TurnOption;
+    typedef unsigned int SliceOption;
 
     const Slice U = 0; // Up
     const Slice F = 1; // Front
@@ -86,24 +87,17 @@ namespace rubiks {
         /*D*/ {'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'},
     };
 
-    const Option OPT_QUARTER_TURN  = 0x01;
-    const Option OPT_REVERSE_TURN  = 0x02;
-    const Option OPT_HALF_TURN     = 0x04;
+    const TurnOption OPT_QUARTER_TURN  = 0x01;
+    const TurnOption OPT_REVERSE_TURN  = 0x02;
+    const TurnOption OPT_HALF_TURN     = 0x04;
 
-    const Option OPT_SINGLE_FACE   = 0x10;
-    const Option OPT_MIDDLE_SLICE  = 0x20;
-    const Option OPT_DOUBLE_SLICE = 0x40;
-    const Option OPT_TRIPLE_SLICE = 0x80;
+    const SliceOption OPT_SINGLE_FACE   = 0x10;
+    const SliceOption OPT_MIDDLE_SLICE  = 0x20;
+    const SliceOption OPT_DOUBLE_SLICE = 0x40;
+    const SliceOption OPT_TRIPLE_SLICE = 0x80;
 
-    const Option DefaultOption =
-        OPT_QUARTER_TURN | OPT_HALF_TURN | OPT_REVERSE_TURN |
-        OPT_SINGLE_FACE | OPT_MIDDLE_SLICE;
-
-    const Option TurnOption = OPT_QUARTER_TURN | OPT_HALF_TURN | OPT_REVERSE_TURN;
-    const Option SliceOption = OPT_SINGLE_FACE | OPT_MIDDLE_SLICE | OPT_DOUBLE_SLICE | OPT_TRIPLE_SLICE;
-
-    const Option DefaultTurnOption = OPT_QUARTER_TURN | OPT_HALF_TURN | OPT_REVERSE_TURN;
-    const Option DefaultSliceOption = OPT_SINGLE_FACE | OPT_MIDDLE_SLICE;
+    const TurnOption DefaultTurnOption = OPT_QUARTER_TURN | OPT_HALF_TURN | OPT_REVERSE_TURN;
+    const SliceOption DefaultSliceOption = OPT_SINGLE_FACE | OPT_MIDDLE_SLICE;
 
     class Cube {
       private:
@@ -124,8 +118,6 @@ namespace rubiks {
         }
         void rotate(Slice slice, Turn turn);
         void rotate(const Rotation &rotation);
-        void scramble(size_t times);
-        void scramble(size_t times, Procedure &rotations);
         inline Cube &operator=(const Cube &other) {
             memcpy((void *) table, other.table, sizeof table);
             return *this;
@@ -163,7 +155,27 @@ namespace rubiks {
         friend ostream &operator<<(ostream &out, const Procedure &rotations);
     };
 
-    class Search {
+    class OptionHolder {
+      protected:
+        TurnOption turn_option;
+        SliceOption slice_option;
+      public:
+        OptionHolder() : turn_option(DefaultTurnOption), slice_option(DefaultSliceOption) {}
+        TurnOption get_turn_option() const {
+            return turn_option;
+        }
+        void set_turn_option(TurnOption opt) {
+            turn_option = opt;
+        }
+        SliceOption get_slice_option() const {
+            return slice_option;
+        }
+        void set_slice_option(SliceOption opt) {
+            slice_option = opt;
+        }
+    };
+
+    class Search : public OptionHolder {
       private:
         bool inner_search(Procedure &stack);
         bool inner_search_turns(Procedure &stack, Slice slice);
@@ -172,28 +184,12 @@ namespace rubiks {
         const Cube &goal;
         size_t target_depth;
         ostream &out;
-        Option option;
       public:
         Search(Cube &_cube, const Cube &_goal, size_t _depth) :
-            cube(_cube), goal(_goal), target_depth(_depth), out(cout), option(DefaultOption) {}
+                OptionHolder(), cube(_cube), goal(_goal), target_depth(_depth), out(cout) {}
         Search(Cube &_cube, const Cube &_goal, size_t _depth, ostream &_out) :
-            cube(_cube), goal(_goal), target_depth(_depth), out(_out), option(DefaultOption) {}
+                OptionHolder(), cube(_cube), goal(_goal), target_depth(_depth), out(_out) {}
         bool search();
-        Option get_option() const {
-            return option;
-        }
-        void set_option(Option opt) {
-            option = opt;
-        }
-        void add_option(Option opt) {
-            option |= opt;
-        }
-        void remove_option(Option opt) {
-            option &= ~opt;
-        }
-        bool has_option(Option opt) const {
-            return (option & opt) != 0;
-        }
       protected:
         virtual bool match() const;
         virtual void result(const Procedure &stack) const;
@@ -206,6 +202,16 @@ namespace rubiks {
       protected:
         virtual bool match() const;
         virtual void result(const Procedure &stack) const;
+    };
+
+    class Scramble : public OptionHolder {
+      public:
+        Scramble(const Cube _cube) : cube(_cube) {}
+        void scramble(size_t depth);
+        Procedure get_procedure() const {return procedure;}
+      private:
+        Cube cube;
+        Procedure procedure;
     };
 
     inline bool should_skip(Slice prev_slice, Slice current_slice) {
