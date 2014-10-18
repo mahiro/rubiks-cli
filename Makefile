@@ -10,8 +10,13 @@ TSRCS = $(shell find t -name '*.cpp' -print)
 TDEPS = $(patsubst t/%.cpp, obj/%.d, $(TSRCS))
 TBINS = $(patsubst t/%.cpp, t/%.t, $(TSRCS))
 
-.PHONY: all clean
+PREFIX ?= /usr/local
+
+.PHONY: all install test clean
 all: $(BINS)
+
+install: $(BINS)
+	install $(BINS) $(PREFIX)/bin
 
 test: $(BINS) $(TBINS)
 	prove
