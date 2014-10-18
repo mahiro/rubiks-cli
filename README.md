@@ -64,21 +64,31 @@ methods, such as the LBL method.
 Output:
 
     # Depth: 1
+    #  0 result(s)
     # Depth: 2
+    #  0 result(s)
     # Depth: 3
+    #  0 result(s)
     # Depth: 4
     F2 B2 R2 L2
     R2 L2 F2 B2
+    #  2 result(s)
 
+Note: Sample input data files are found in the `data` directory.
 
 ### Default Options
 
-    $ rubiks-search -n1 -N8 -p -r -a -s -m
+    $ rubiks-search -n1 -N8 -i -j -p -r -l -s -m
 
 ### Depth Options
 
     -n DEPTH   Set minimum depth (default = 1) and maximum depth (unless -N is given)
     -N DEPTH   Set maximum depth (default = 8)
+
+### Input Options
+
+    -i/-j   Read STDIN for the initial/target cube (default)
+    -I/-J   Use the default cube as the initial/target input instead of reading STDIN
 
 ### Output Options
 
@@ -139,7 +149,7 @@ Output:
 
 ### Default Options
 
-    $ rubiks-enumerate -n1 -N1 -p -r -a -s -m
+    $ rubiks-enumerate -n1 -N1 -p -r -l -s -m
 
 ### Depth Options
 
@@ -203,7 +213,7 @@ Output:
 
 ### Default Options
 
-    $ rubiks-scramble -n20 -i -o -p -r -a -s -m
+    $ rubiks-scramble -n20 -i -o -p -r -l -s -m
 
 ### Depth Options
 
@@ -217,8 +227,8 @@ Output:
 ### Output Options
 
     -o/-O   Print the scrambled cube (default)
-    -u/-U   Print the procedure to scramble the cube
-    -v/-V   Print the reverse procedure to solve the scrambled cube
+    -u/-U   Print the rotation steps used to scramble the cube
+    -v/-V   Print the reverse steps to solve the scrambled cube
 
 ### Turn Options
 
@@ -237,7 +247,7 @@ Output:
 
 ## rubiks-apply
 
-Applies a given Rubik's cube with a given list of rotation steps.
+Applies a given Rubik's cube with a given list of rotation steps. A result cube is printed per input line.
 
 ### Usage
 
@@ -313,8 +323,8 @@ Output:
 
 ## rubiks-mirror
 
-Generates mirrored steps of given rotation steps. A mirror is based on a perspective view from the direction of `U`,
-`F` and `R` where the left and right (`F` and `R`) are inverted.
+Generates mirrored steps of given rotation steps. A mirror is based on a perspective view from the direction at the
+corner of `U`, `F` and `R` where the left and right hand sides (`F` and `R`) are inverted.
 
 ### Usage
 

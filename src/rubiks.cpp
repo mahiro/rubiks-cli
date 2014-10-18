@@ -344,25 +344,25 @@ namespace rubiks {
         return out;
     }
 
-    bool Search::inner_search_turns(Procedure &stack, Slice slice) {
-        bool found = false;
+    size_t Search::inner_search_turns(Procedure &stack, Slice slice) {
+        size_t found = 0;
 
         if (turn_option & OPT_QUARTER_TURN) {
             // QT
             cube.rotate(slice, PrimaryQuarterTurn);
-            if (inner_search(stack)) {found = true;}
+            found += inner_search(stack);
 
             if (turn_option & OPT_REVERSE_TURN) {
                 // RT
                 cube.rotate(slice, HalfTurn); // QT + HT => RT
                 stack.back().turn = ReverseQuarterTurn;
-                if (inner_search(stack)) {found = true;}
+                found += inner_search(stack);
 
                 if (turn_option & OPT_HALF_TURN) {
                     // HT
                     cube.rotate(slice, ReverseQuarterTurn); // RT + RT => HT
                     stack.back().turn = HalfTurn;
-                    if (inner_search(stack)) {found = true;}
+                    found += inner_search(stack);
                     // Restore
                     cube.rotate(slice, HalfTurn);
                 } else {
@@ -374,7 +374,7 @@ namespace rubiks {
                     // HT
                     cube.rotate(slice, PrimaryQuarterTurn); // QT + QT => HT
                     stack.back().turn = HalfTurn;
-                    if (inner_search(stack)) {found = true;}
+                    found += inner_search(stack);
                     // Restore
                     cube.rotate(slice, HalfTurn);
                 } else {
@@ -387,13 +387,13 @@ namespace rubiks {
                 // RT
                 cube.rotate(slice, ReverseQuarterTurn);
                 stack.back().turn = ReverseQuarterTurn;
-                if (inner_search(stack)) {found = true;}
+                found += inner_search(stack);
 
                 if (turn_option & OPT_HALF_TURN) {
                     // HT
                     cube.rotate(slice, ReverseQuarterTurn); // RT + RT => HT
                     stack.back().turn = HalfTurn;
-                    if (inner_search(stack)) {found = true;}
+                    found += inner_search(stack);
                     // Restore
                     cube.rotate(slice, HalfTurn);
                 } else {
@@ -404,7 +404,7 @@ namespace rubiks {
                 // HT
                 cube.rotate(slice, HalfTurn);
                 stack.back().turn = HalfTurn;
-                if (inner_search(stack)) {found = true;}
+                found += inner_search(stack);
                 // Restore
                 cube.rotate(slice, HalfTurn);
             }
@@ -413,19 +413,19 @@ namespace rubiks {
         return found;
     }
 
-    bool Search::inner_search(Procedure &stack) {
+    size_t Search::inner_search(Procedure &stack) {
         size_t depth = stack.size();
 
         if (depth >= target_depth) {
             if (match()) {
                 result(stack);
-                return true;
+                return 1;
             } else {
-                return false;
+                return 0;
             }
         }
 
-        bool found = false;
+        size_t found = 0;
         Slice prev_slice = depth > 0 ? stack.back().slice : 0;
 
         for (Slice slice = 0; slice < 18; slice++) {
@@ -452,18 +452,14 @@ namespace rubiks {
             }
 
             stack.push_back(Rotation(slice, PrimaryQuarterTurn));
-
-            if (inner_search_turns(stack, slice)) {
-                found = true;
-            }
-
+            found += inner_search_turns(stack, slice);
             stack.pop_back();
         }
 
         return found;
     }
 
-    bool Search::search() {
+    size_t Search::search() {
         Procedure stack;
         return inner_search(stack);
     }

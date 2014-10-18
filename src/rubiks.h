@@ -177,8 +177,8 @@ namespace rubiks {
 
     class Search : public OptionHolder {
       private:
-        bool inner_search(Procedure &stack);
-        bool inner_search_turns(Procedure &stack, Slice slice);
+        size_t inner_search(Procedure &stack);
+        size_t inner_search_turns(Procedure &stack, Slice slice);
       protected:
         Cube &cube;
         const Cube &goal;
@@ -189,7 +189,7 @@ namespace rubiks {
                 OptionHolder(), cube(_cube), goal(_goal), target_depth(_depth), out(cout) {}
         Search(Cube &_cube, const Cube &_goal, size_t _depth, ostream &_out) :
                 OptionHolder(), cube(_cube), goal(_goal), target_depth(_depth), out(_out) {}
-        bool search();
+        size_t search();
       protected:
         virtual bool match() const;
         virtual void result(const Procedure &stack) const;

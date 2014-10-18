@@ -48,7 +48,13 @@ int main(int argc, char *argv[]) {
             cerr << "# Depth: " << d << endl;
         }
 
-        if (search.search()) {
+        size_t found = search.search();
+
+        if (show_progress) {
+            cerr << "#  " << found << " result(s)" << endl;
+        }
+
+        if (found) {
             break;
         }
     }
